@@ -1,0 +1,33 @@
+name: bdairways_predictor
+description: BDAirways fare & booking-behavior predictor (Flutter + Firebase demo)
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Firebase
+  firebase_core: ^3.6.0
+  cloud_firestore: ^5.4.4
+
+  # Opens the airline's official booking site in the browser
+  url_launcher: ^6.3.1
+
+  # State management (simple, no boilerplate)
+  provider: ^6.1.2
+
+  # Nice number formatting for BDT currency
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
