@@ -1,17 +1,23 @@
-# bdairways_predictor
+# BDAirways Flight Fare Predictor
 
-A new Flutter project.
+Web app for the IEEE paper "A Multi-Target Machine Learning Analysis of Predictability in Bangladeshi Domestic Flight Booking Data".
 
-## Getting Started
+**Live demo:** https://bd-domastic--airline.web.app
 
-This project is a starting point for a Flutter application.
+## What it does
+- Estimates the total fare for a domestic flight in Bangladesh
+- Shows the paper's results: best model per target, train vs test, chi-square, and comparison with other studies
 
-A few resources to get you started if this is your first Flutter project:
+## Key results
+- Total Fare: Random Forest, test R² = 0.890
+- Departure Airport: XGBoost, F1 = 0.688
+- Cabin Class, Airline, Booking Source: not reliably predictable
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Note
+Fare estimates come from a linear model (R² = 0.875). The paper's best model is a Random Forest (R² = 0.890).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Tech
+Flutter (web), Firebase Hosting, Cloud Firestore
+
+## Authors
+Md. Akash Sheikh. Supervisor: Md. Tarek Habib. Independent University, Bangladesh.
