@@ -5,6 +5,7 @@ import '../models/fare_prediction.dart';
 import '../services/firestore_service.dart';
 import '../services/predict_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/hero_banner.dart';
 
 class PredictorScreen extends StatefulWidget {
   const PredictorScreen({super.key});
@@ -97,14 +98,28 @@ class _PredictorScreenState extends State<PredictorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final wide = MediaQuery.sizeOf(context).width >= 900;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildForm(),
+          const HeroBanner(),
           const SizedBox(height: 20),
-          _buildResult(),
+          if (wide)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildForm()),
+                const SizedBox(width: 20),
+                Expanded(child: _buildResult()),
+              ],
+            )
+          else ...[
+            _buildForm(),
+            const SizedBox(height: 20),
+            _buildResult(),
+          ],
         ],
       ),
     );
@@ -242,7 +257,7 @@ class _PredictorScreenState extends State<PredictorScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: const Color(0xFFF7E6E1),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Text(_error!,
             style: const TextStyle(color: AppColors.red, fontSize: 13)),
@@ -254,7 +269,7 @@ class _PredictorScreenState extends State<PredictorScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.lightGrey,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: const Text(
           'Fill in the booking details and tap "Predict fare" to see the '
@@ -269,7 +284,7 @@ class _PredictorScreenState extends State<PredictorScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.navy,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,7 +326,7 @@ class _PredictorScreenState extends State<PredictorScreen> {
                 side: BorderSide.none,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: Text('Book on $_airline\'s official site',

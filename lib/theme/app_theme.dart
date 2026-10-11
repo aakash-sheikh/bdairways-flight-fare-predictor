@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Colors carried over from the presentation deck so the app, slides,
-/// and paper all look like one consistent piece of work.
+/// Brand colors shared by the app, slides, and paper.
 class AppColors {
   static const navy = Color(0xFF1F3A5F);
+  static const deepNavy = Color(0xFF14283F);
   static const grey = Color(0xFF5B6670);
   static const lightGrey = Color(0xFFEDEFF1);
   static const line = Color(0xFFD9DEE3);
@@ -11,13 +11,14 @@ class AppColors {
   static const red = Color(0xFFB23A2E);
   static const amber = Color(0xFFF2A65A);
   static const white = Color(0xFFFFFFFF);
+  static const bg = Color(0xFFF3F6F9);
 }
 
 class AppTheme {
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: AppColors.white,
+      scaffoldBackgroundColor: AppColors.bg,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.navy,
         primary: AppColors.navy,
@@ -38,8 +39,9 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.white,
         elevation: 0,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(12),
           side: const BorderSide(color: AppColors.line),
         ),
       ),
@@ -47,7 +49,11 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.line),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: AppColors.line),
         ),
         contentPadding:
@@ -57,9 +63,11 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.navy,
           foregroundColor: AppColors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          textStyle:
+              const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
       ),
