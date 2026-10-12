@@ -6,6 +6,7 @@ import '../services/firestore_service.dart';
 import '../services/predict_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/hero_banner.dart';
+import '../widgets/route_cards.dart';
 
 class PredictorScreen extends StatefulWidget {
   const PredictorScreen({super.key});
@@ -24,6 +25,7 @@ class _PredictorScreenState extends State<PredictorScreen> {
   double _durationHrs = 1.1;
 
   final _predictService = PredictService();
+  final _formKey = GlobalKey();
   final _firestoreService = FirestoreService();
 
   bool _loading = false;
@@ -96,6 +98,24 @@ class _PredictorScreenState extends State<PredictorScreen> {
     }
   }
 
+  /// Called when a route card is tapped: fill in the form, predict, scroll up.
+  void _applyRoute(String from, String to) {
+    setState(() {
+      _source = from;
+      _destination = to;
+      _error = null;
+    });
+    _runPrediction();
+    final ctx = _formKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= 900;
@@ -106,20 +126,29 @@ class _PredictorScreenState extends State<PredictorScreen> {
         children: [
           const HeroBanner(),
           const SizedBox(height: 20),
-          if (wide)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildForm()),
-                const SizedBox(width: 20),
-                Expanded(child: _buildResult()),
-              ],
-            )
-          else ...[
-            _buildForm(),
-            const SizedBox(height: 20),
-            _buildResult(),
-          ],
+          KeyedSubtree(
+            key: _formKey,
+            child: wide
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildForm()),
+                      const SizedBox(width: 20),
+                      Expanded(child: _buildResult()),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildForm(),
+                      const SizedBox(height: 20),
+                      _buildResult(),
+                    ],
+                  ),
+          ),
+          const SizedBox(height: 36),
+          RouteCards(onSelect: _applyRoute),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -241,6 +270,7 @@ class _PredictorScreenState extends State<PredictorScreen> {
                 letterSpacing: 0.5)),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
+          key: ValueKey('$label-$value'),
           initialValue: value,
           items: items
               .map((e) => DropdownMenuItem(value: e, child: Text(e)))

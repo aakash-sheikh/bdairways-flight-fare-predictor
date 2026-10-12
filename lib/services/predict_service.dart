@@ -52,15 +52,36 @@ class PredictService {
     'US-Bangla Airlines': -37.97411361184188,
   };
 
-  Future<double> predictFare(FarePrediction request) async {
+  /// Synchronous estimate, also used by the route cards.
+  static double estimate({
+    required String source,
+    required String destination,
+    required String cabinClass,
+    required String airline,
+    required String seasonality,
+    required int days,
+    required double duration,
+  }) {
     final fare = _intercept +
-        (_source[request.source] ?? 0) +
-        (_destination[request.destination] ?? 0) +
-        (_cabinClass[request.cabinClass] ?? 0) +
-        (_seasonality[request.seasonality] ?? 0) +
-        (_airline[request.airline] ?? 0) +
-        _daysBefore * request.daysBeforeDeparture +
-        _duration * request.durationHrs;
+        (_source[source] ?? 0) +
+        (_destination[destination] ?? 0) +
+        (_cabinClass[cabinClass] ?? 0) +
+        (_seasonality[seasonality] ?? 0) +
+        (_airline[airline] ?? 0) +
+        _daysBefore * days +
+        _duration * duration;
     return fare < 1500 ? 1500 : fare;
+  }
+
+  Future<double> predictFare(FarePrediction request) async {
+    return estimate(
+      source: request.source,
+      destination: request.destination,
+      cabinClass: request.cabinClass,
+      airline: request.airline,
+      seasonality: request.seasonality,
+      days: request.daysBeforeDeparture,
+      duration: request.durationHrs,
+    );
   }
 }
