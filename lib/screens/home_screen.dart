@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/brand_logo.dart';
 import '../widgets/intro_splash.dart';
+import 'admin_login_dialog.dart';
 import 'predictor_screen.dart';
 import 'results_screen.dart';
 
@@ -15,44 +18,61 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _tabIndex = 0;
   bool _splashDone = false;
-
-  final _screens = const [PredictorScreen(), ResultsScreen()];
+  final _auth = AuthService();
 
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= 720;
 
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: Stack(
-        children: [
-          Column(
+    return StreamBuilder<User?>(
+      stream: _auth.userChanges,
+      builder: (context, snapshot) {
+        // Model Results is only for the signed-in admin.
+        final admin = AuthService.isAdmin(snapshot.data);
+        final tab = admin ? _tabIndex : 0;
+
+        return Scaffold(
+          backgroundColor: AppColors.bg,
+          body: Stack(
             children: [
-              _header(wide),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: Brand.maxWidth),
-                    child: IndexedStack(index: _tabIndex, children: _screens),
+              Column(
+                children: [
+                  _header(wide, admin),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(maxWidth: Brand.maxWidth),
+                        child: IndexedStack(
+                          index: tab,
+                          children: [
+                            const PredictorScreen(),
+                            admin
+                                ? const ResultsScreen()
+                                : const SizedBox.shrink(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (!wide && admin) _bottomNav(tab),
+                ],
+              ),
+              if (!_splashDone)
+                Positioned.fill(
+                  child: IntroSplash(
+                    onDone: () => setState(() => _splashDone = true),
                   ),
                 ),
-              ),
-              if (!wide) _bottomNav(),
             ],
           ),
-          if (!_splashDone)
-            Positioned.fill(
-              child: IntroSplash(
-                onDone: () => setState(() => _splashDone = true),
-              ),
-            ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _header(bool wide) {
+  Widget _header(bool wide, bool admin) {
     return Container(
       height: Brand.headerHeight,
       decoration: const BoxDecoration(
@@ -105,15 +125,56 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                if (wide) ...[
-                  _tab(0, Icons.flight_takeoff, 'Fare Predictor'),
-                  const SizedBox(width: 8),
-                  _tab(1, Icons.bar_chart, 'Model Results'),
-                ],
+                if (admin) ...[
+                  if (wide) ...[
+                    _tab(0, Icons.flight_takeoff, 'Fare Predictor'),
+                    const SizedBox(width: 8),
+                    _tab(1, Icons.bar_chart, 'Model Results'),
+                    const SizedBox(width: 12),
+                  ],
+                  _adminChip(),
+                ] else
+                  IconButton(
+                    tooltip: 'Admin sign in',
+                    icon: const Icon(Icons.lock_outline,
+                        size: 20, color: AppColors.grey),
+                    onPressed: () => showAdminLogin(context),
+                  ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _adminChip() {
+    return Container(
+      padding: const EdgeInsets.only(left: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE6F0FB),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.verified_user, size: 16, color: Color(0xFF1565B5)),
+          const SizedBox(width: 6),
+          const Text('Admin',
+              style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1565B5))),
+          IconButton(
+            tooltip: 'Sign out',
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.logout, size: 18, color: Color(0xFF1565B5)),
+            onPressed: () async {
+              await _auth.signOut();
+              if (mounted) setState(() => _tabIndex = 0);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -149,9 +210,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _bottomNav() {
+  Widget _bottomNav(int selected) {
     return NavigationBar(
-      selectedIndex: _tabIndex,
+      selectedIndex: selected,
       onDestinationSelected: (i) => setState(() => _tabIndex = i),
       backgroundColor: Colors.white,
       indicatorColor: AppColors.lightGrey,
